@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="et">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ClipForge — Error</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="inner-page">
+  <div class="inner-frame">
+    <div class="inner-top">
+      <a class="brand" href="/"><span class="brand-mark"><span></span></span><span>ClipForge</span></a>
+      <a class="back-link" href="/">← Back</a>
+    </div>
+    <div class="error-wrap">
+      <section class="error-panel">
+        <div class="eyebrow dark"><span class="pulse-dot"></span> Something went wrong</div>
+        <h1>Couldn’t make<br>the clips.</h1>
+        <div class="error-code">{{ error }}</div>
+        <p class="error-help">Kontrolli sisestatud linki ning seda, et serveris oleks FFmpeg saadaval. Seejärel proovi uuesti.</p>
+        <a class="button" href="/">Try again <span>→</span></a>
+      </section>
+    </div>
+  </div>
+</div>
+</body>
+</html>
