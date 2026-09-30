@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="et">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ClipForge — Valmis klipid</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="inner-page">
+  <div class="inner-frame">
+    <div class="inner-top">
+      <a class="brand" href="/"><span class="brand-mark"><span></span></span><span>ClipForge</span></a>
+      <a class="back-link" href="/">← Create another video</a>
+    </div>
+
+    <section class="result-hero">
+      <div class="eyebrow dark"><span class="pulse-dot"></span> Finished</div>
+      <h1>Your clips<br>are ready.</h1>
+      <p>Preview each clip before downloading it. If one is not right, regenerate it or remove it.</p>
+      <span class="job-pill">Job {{ job }}</span>
+    </section>
+
+    <div class="clips" id="clipsGrid">
+      {% for c in clips %}
+      <article class="clip-card" id="clip-card-{{ c.index }}" data-index="{{ c.index }}">
+        <div class="video-shell">
+          <video controls playsinline preload="metadata" src="{{ c.url }}"></video>
+          <span class="score-badge">AI score {{ c.score }}</span>
+        </div>
+        <div class="clip-meta">
+          <div class="clip-heading-row">
+            <div>
+              <span class="clip-number">CLIP {{ c.index }}</span>
+              <h3 class="clip-title">{{ c.title }}</h3>
+            </div>
+            <span class="time-pill">{{ c.start }}–{{ c.end }} s</span>
+          </div>
+          <p class="clip-description">{{ c.text }}</p>
+          <div class="clip-actions">
+            <a class="button" href="{{ c.url }}" download>Download MP4 <span>↓</span></a>
+            <button class="secondary-button regenerate-button" type="button" data-index="{{ c.index }}">Regenerate</button>
+            <button class="danger-button delete-button" type="button" data-index="{{ c.index }}">Delete</button>
+          </div>
+          <div class="clip-status" id="clip-status-{{ c.index }}"></div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script>
+const jobId = {{ job | tojson }};
+
+function escapeHtml(value) {
+  const div = document.createElement("div");
+  div.textContent = value ?? "";
+  return div.innerHTML;
+}
+
+async function deleteClip(index) {
+  const card = document.getElementById(`clip-card-${index}`);
+  const status = document.getElementById(`clip-status-${index}`);
+  if (!confirm("Delete this clip?")) return;
+  status.textContent = "Deleting…";
+  const response = await fetch(`/api/jobs/${jobId}/clips/${index}`, { method: "DELETE" });
+  if (!response.ok) {
+    status.textContent = "Could not delete the clip.";
+    return;
+  }
+  card.style.opacity = "0";
+  card.style.transform = "scale(.98)";
+  setTimeout(() => card.remove(), 220);
+}
+
+async function regenerateClip(index) {
+  const card = document.getElementById(`clip-card-${index}`);
+  const button = card.querySelector(".regenerate-button");
+  const status = document.getElementById(`clip-status-${index}`);
+  button.disabled = true;
+  status.textContent = "Finding another highlight and rendering it…";
+
+  try {
+    const response = await fetch(`/api/jobs/${jobId}/clips/${index}/regenerate`, { method: "POST" });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Could not regenerate the clip.");
+
+    const video = card.querySelector("video");
+    video.src = data.url;
+    video.load();
+    card.querySelector(".clip-title").textContent = data.title;
+    card.querySelector(".time-pill").textContent = `${data.start}–${data.end} s`;
+    card.querySelector(".clip-description").textContent = data.text;
+    card.querySelector(".score-badge").textContent = `AI score ${data.score}`;
+    card.querySelector("a.button").href = data.url;
+    status.textContent = "New version ready.";
+  } catch (error) {
+    status.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+document.querySelectorAll(".delete-button").forEach(button => {
+  button.addEventListener("click", () => deleteClip(button.dataset.index));
+});
+
+document.querySelectorAll(".regenerate-button").forEach(button => {
+  button.addEventListener("click", () => regenerateClip(button.dataset.index));
+});
+</script>
+</body>
+</html>
