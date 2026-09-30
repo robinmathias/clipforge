@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="et">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ClipForge — Valmis klipid</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="inner-page">
+  <div class="inner-frame">
+    <div class="inner-top">
+      <a class="brand" href="/"><span class="brand-mark"><span></span></span><span>ClipForge</span></a>
+      <a class="back-link" href="/">← Create another video</a>
+    </div>
+    <section class="result-hero">
+      <div class="eyebrow dark"><span class="pulse-dot"></span> Finished</div>
+      <h1>Your clips<br>are ready.</h1>
+      <span class="job-pill">Job {{ job }}</span>
+    </section>
+    <div class="clips">
+      {% for c in clips %}
+      <article class="clip-card">
+        <video controls preload="metadata" src="{{ c.url }}"></video>
+        <div class="clip-meta">
+          <h3>Clip {{ loop.index }} · {{ c.start }}–{{ c.end }} s</h3>
+          <p>{{ c.text }}</p>
+          <a class="button" href="{{ c.url }}" download>Download MP4 <span>↓</span></a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+</body>
+</html>

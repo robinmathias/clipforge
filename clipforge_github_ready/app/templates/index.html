@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="et">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ClipForge — AI Clip Maker</title>
+  <meta name="description" content="Muuda pikad videod automaatselt TikToki ja YouTube Shortsi klippideks.">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="page-shell">
+    <div class="app-frame">
+      <nav class="nav">
+        <a class="brand" href="/" aria-label="ClipForge avaleht">
+          <span class="brand-mark"><span></span></span>
+          <span>ClipForge</span>
+        </a>
+        <div class="nav-links">
+          <a href="#create">Create</a>
+          <a href="#how">How it works</a>
+          <a href="#features">Features</a>
+        </div>
+        <a class="nav-cta" href="#create">Create clips <span>↗</span></a>
+      </nav>
+
+      <header class="hero-modern">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="pulse-dot"></span> AI video clipping</div>
+          <h1>Turn long videos<br>into <span class="accent-word">great clips.</span></h1>
+          <p>Lisa video või kleebi Twitchi / YouTube'i link. ClipForge leiab highlight'id, teeb 9:16 videod ja lisab captionid automaatselt.</p>
+          <div class="hero-actions">
+            <a class="primary-action" href="#create">Start clipping <span>→</span></a>
+            <span class="hero-note">No editing timeline needed</span>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="orbit orbit-one"></div>
+          <div class="orbit orbit-two"></div>
+          <div class="floating-card source-card">
+            <div class="mini-label">SOURCE</div>
+            <div class="source-row">
+              <div class="play-icon">▶</div>
+              <div><strong>2h 14m stream</strong><small>Ready to process</small></div>
+            </div>
+          </div>
+          <div class="phone-card">
+            <div class="phone-video">
+              <div class="fake-face"></div>
+              <div class="caption-line"><b>THAT WAS</b><br><span>INSANE</span></div>
+              <div class="phone-progress"><i></i></div>
+            </div>
+            <div class="phone-footer"><span>CLIP 03</span><strong>00:37</strong></div>
+          </div>
+          <div class="floating-card score-card">
+            <div class="score-ring">94</div>
+            <div><strong>Viral score</strong><small>Strong highlight</small></div>
+          </div>
+        </div>
+      </header>
+
+      <section id="create" class="creator-section">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow dark"><span class="pulse-dot"></span> Create</div>
+            <h2>One link. Ready-to-post clips.</h2>
+          </div>
+          <p>Vali allikas ja seaded. Ülejäänu teeb ClipForge sinu eest.</p>
+        </div>
+
+        <form id="clipForm" class="creator-card" action="/process" method="post" enctype="multipart/form-data">
+          <div class="source-picker">
+            <div class="field-block field-block-wide">
+              <label for="video_url">Video link</label>
+              <div class="url-input-wrap">
+                <span class="input-icon">↗</span>
+                <input id="video_url" type="url" name="video_url" placeholder="Paste Twitch or YouTube URL">
+              </div>
+            </div>
+            <div class="divider-choice"><span>or</span></div>
+            <div class="upload-zone">
+              <label for="video">Upload a video</label>
+              <input id="video" type="file" name="video" accept="video/*">
+              <div class="upload-ui">
+                <span class="upload-icon">＋</span>
+                <div><strong>Choose file</strong><small>MP4, MOV, WEBM</small></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-grid">
+            <label class="setting-card">
+              <span>Number of clips</span>
+              <input type="number" name="clip_count" min="1" max="8" value="3">
+            </label>
+            <label class="setting-card">
+              <span>Clip length</span>
+              <div class="suffix-input"><input type="number" name="clip_length" min="15" max="90" value="35"><em>sec</em></div>
+            </label>
+            <label class="setting-card">
+              <span>AI model</span>
+              <select name="whisper_model">
+                <option value="tiny">Tiny — fast</option>
+                <option value="base">Base</option>
+                <option value="small" selected>Small — recommended</option>
+                <option value="medium">Medium — accurate</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="creator-footer">
+            <div class="privacy-note"><span>✓</span> Video is processed for clip generation</div>
+            <button id="generateButton" type="submit">Generate clips <span>↗</span></button>
+          </div>
+        </form>
+
+        <div id="loading" class="processing-card" hidden>
+          <div class="processing-top">
+            <div>
+              <span class="processing-kicker">PROCESSING VIDEO</span>
+              <h3 id="loadingText">Preparing your video...</h3>
+            </div>
+            <strong id="loadingPercent">5%</strong>
+          </div>
+          <div class="progress-track"><div id="loadingBar" class="progress-bar"></div></div>
+          <div class="processing-steps">
+            <span class="active">01 Upload</span><span>02 Transcribe</span><span>03 Find highlights</span><span>04 Render</span>
+          </div>
+          <p>Progress is currently estimated. Keep this page open while the clips are generated.</p>
+        </div>
+      </section>
+
+      <section id="how" class="how-section">
+        <div class="section-heading light-heading">
+          <div>
+            <div class="eyebrow">Workflow</div>
+            <h2>From stream to short<br>in four steps.</h2>
+          </div>
+          <p>No timeline. No manual subtitles. Just the source video and a few settings.</p>
+        </div>
+        <div class="workflow-grid">
+          <article><span>01</span><h3>Add your video</h3><p>Upload a file or paste a supported video URL.</p></article>
+          <article><span>02</span><h3>AI listens</h3><p>Speech is transcribed and potential highlights are scored.</p></article>
+          <article><span>03</span><h3>Clips are built</h3><p>Selected moments are converted into vertical 9:16 videos with captions.</p></article>
+          <article><span>04</span><h3>Download</h3><p>Preview your clips and download the finished MP4 files.</p></article>
+        </div>
+      </section>
+
+      <section id="features" class="feature-band">
+        <div class="feature-copy">
+          <div class="eyebrow dark">Built for short-form</div>
+          <h2>Less editing.<br>More publishing.</h2>
+        </div>
+        <div class="feature-list">
+          <div><span>↗</span><strong>Twitch / YouTube URLs</strong><small>Paste the source and start processing.</small></div>
+          <div><span>CC</span><strong>Automatic captions</strong><small>Speech becomes burned-in subtitles.</small></div>
+          <div><span>9:16</span><strong>Vertical output</strong><small>Ready for Shorts and TikTok workflows.</small></div>
+          <div><span>AI</span><strong>Highlight selection</strong><small>Potential moments are picked automatically.</small></div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <a class="brand" href="/"><span class="brand-mark"><span></span></span><span>ClipForge</span></a>
+        <p>Long videos in. Short clips out.</p>
+        <span>© 2026 ClipForge</span>
+      </footer>
+    </div>
+  </div>
+
+<script>
+const form = document.getElementById("clipForm");
+const loading = document.getElementById("loading");
+const bar = document.getElementById("loadingBar");
+const text = document.getElementById("loadingText");
+const percentText = document.getElementById("loadingPercent");
+const button = document.getElementById("generateButton");
+
+form.addEventListener("submit", function(event) {
+  const file = form.querySelector('input[name="video"]').files[0];
+  const url = form.querySelector('input[name="video_url"]').value.trim();
+  if (!file && !url) {
+    event.preventDefault();
+    alert("Lisa video fail või video link.");
+    return;
+  }
+
+  loading.hidden = false;
+  loading.scrollIntoView({ behavior: "smooth", block: "center" });
+  button.disabled = true;
+  button.innerHTML = "Processing… <span>↗</span>";
+  let progress = 5;
+
+  setInterval(() => {
+    if (progress < 90) {
+      progress += Math.floor(Math.random() * 4) + 1;
+      progress = Math.min(progress, 90);
+      bar.style.width = progress + "%";
+      percentText.innerText = progress + "%";
+      if (progress < 20) text.innerText = "Preparing your video...";
+      else if (progress < 50) text.innerText = "Transcribing speech...";
+      else if (progress < 70) text.innerText = "Finding the best moments...";
+      else text.innerText = "Rendering your clips...";
+    }
+  }, 1500);
+});
+</script>
+</body>
+</html>
