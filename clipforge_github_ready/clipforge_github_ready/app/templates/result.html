@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="et">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Valmis klipid</title><link rel="stylesheet" href="/static/style.css"></head>
+<body><main class="wrap">
+<a class="back" href="/">← uus video</a>
+<h1>Valmis klipid</h1>
+<p>Job: {{ job }}</p>
+<div class="clips">
+{% for c in clips %}
+<article class="card">
+  <video controls preload="metadata" src="{{ c.url }}"></video>
+  <h3>Klipp {{ loop.index }} · {{ c.start }}–{{ c.end }} s</h3>
+  <p>{{ c.text }}</p>
+  <a class="button" href="{{ c.url }}" download>Laadi MP4 alla</a>
+</article>
+{% endfor %}
+</div>
+</main></body></html>
