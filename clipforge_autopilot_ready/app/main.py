@@ -3,7 +3,7 @@ import asyncio, json, os, random, sqlite3, subprocess, uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
-import edge_tts, requests
+import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from fastapi import FastAPI, Request, Form, HTTPException
