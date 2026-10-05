@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ClipForge Autopilot</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="mark">C</div>
+    <div>
+      <strong>ClipForge</strong>
+      <span>Autopilot</span>
+    </div>
+  </div>
+
+  <div class="status">
+    <span class="{{ 'ok' if ai else 'warn' }}">
+      {{ 'AI connected' if ai else 'AI key missing' }}
+    </span>
+
+    <a class="{{ 'ok' if youtube else 'warn' }}" href="/auth/youtube">
+      {{ 'YouTube connected' if youtube else 'Connect YouTube' }}
+    </a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div>
+      <p class="eyebrow">AUTOMATED CONTENT</p>
+      <h1>5 Shorts a day.<br><span>Automatically.</span></h1>
+
+      <p class="lead">
+        ClipForge picks a topic, writes the script, generates the voice,
+        builds a 9:16 video and can post it to your YouTube channel.
+      </p>
+    </div>
+
+    <div class="autopilot-card">
+      <div class="pulse {{ 'on' if autopilot else '' }}"></div>
+      <div>
+        <small>AUTOPILOT</small>
+        <strong>{{ 'ON' if autopilot else 'OFF' }}</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <form class="panel" action="/settings" method="post">
+      <div class="panel-head">
+        <div>
+          <small>DAILY PLAN</small>
+          <h2>Autopilot settings</h2>
+        </div>
+
+        <label class="switch">
+          <input type="checkbox" name="autopilot" {% if autopilot %}checked{% endif %}>
+          <span></span>
+        </label>
+      </div>
+
+      <h3>Topics per day</h3>
+
+      <div class="category-grid">
+        <label>
+          Football
+          <input type="number" name="football" min="0" max="5" value="{{ categories['Football'] }}">
+        </label>
+
+        <label>
+          News
+          <input type="number" name="news" min="0" max="5" value="{{ categories['News'] }}">
+        </label>
+
+        <label>
+          Funny
+          <input type="number" name="funny" min="0" max="5" value="{{ categories['Funny'] }}">
+        </label>
+
+        <label>
+          Facts
+          <input type="number" name="facts" min="0" max="5" value="{{ categories['Facts'] }}">
+        </label>
+      </div>
+
+      <p class="hint">
+        Tip: keep the total at 5. ClipForge uses these numbers as topic weights.
+      </p>
+
+      <h3>Posting times</h3>
+
+      <div class="times">
+        {% for t in times %}
+        <input type="time" name="time{{ loop.index }}" value="{{ t }}">
+        {% endfor %}
+      </div>
+
+      <h3>YouTube visibility</h3>
+
+      <select name="privacy">
+        <option value="private" {% if privacy == 'private' %}selected{% endif %}>Private</option>
+        <option value="unlisted" {% if privacy == 'unlisted' %}selected{% endif %}>Unlisted</option>
+        <option value="public" {% if privacy == 'public' %}selected{% endif %}>Public</option>
+      </select>
+
+      <button class="primary" type="submit">
+        Save settings
+      </button>
+    </form>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <small>MANUAL TEST</small>
+          <h2>Generate now</h2>
+        </div>
+      </div>
+
+      <p class="muted">
+        Test the output quality before turning on full autopilot.
+      </p>
+
+      <div class="quick">
+        {% for c in ['Football','News','Funny','Facts'] %}
+        <form action="/generate" method="post">
+          <input type="hidden" name="category" value="{{ c }}">
+          <button type="submit">
+            {{ c }} <span>→</span>
+          </button>
+        </form>
+        {% endfor %}
+      </div>
+
+      <div class="notice">
+        <strong>Original content</strong>
+        <p>
+          Funny videos are generated as original scenarios.
+          The app does not automatically copy other people's YouTube or TikTok clips.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="queue">
+    <div class="section-head">
+      <div>
+        <small>LATEST VIDEOS</small>
+        <h2>Production queue</h2>
+      </div>
+
+      <span class="live-dot">● auto refresh</span>
+    </div>
+
+    <div id="videos">
+      {% for v in videos %}
+      <article class="video-card">
+        <div class="meta">
+          <span class="cat">{{ v['category'] }}</span>
+          <span>{{ v['created_at'].replace('T',' ') }}</span>
+        </div>
+
+        <h3>{{ v['title'] }}</h3>
+
+        <p>
+          {{ v['script'][:180] }}
+          {% if v['script']|length > 180 %}...{% endif %}
+        </p>
+
+        <div class="card-bottom">
+          <span class="state {{ 'bad' if v['status']=='Error' else '' }}">
+            {{ v['status'] }}
+          </span>
+
+          <div class="actions">
+            {% if v['file_path'] %}
+            <a href="/video/{{ v['id'] }}" target="_blank">
+              View MP4
+            </a>
+            {% endif %}
+
+            {% if v['file_path'] and not v['youtube_id'] and youtube %}
+            <form action="/post/{{ v['id'] }}" method="post">
+              <button>
+                Post to YouTube
+              </button>
+            </form>
+            {% endif %}
+
+            {% if v['youtube_id'] %}
+            <a href="https://youtube.com/watch?v={{ v['youtube_id'] }}" target="_blank">
+              YouTube ↗
+            </a>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if v['error'] %}
+        <pre class="error">{{ v['error'] }}</pre>
+        {% endif %}
+      </article>
+
+      {% else %}
+      <div class="empty">
+        No videos have been created yet.
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</main>
+
+<script>
+setInterval(async () => {
+  try {
+    const response = await fetch('/api/status');
+    const data = await response.json();
+
+    const active = Object.values(data.jobs || {})
+      .some(job => job.progress < 100);
+
+    if (active) {
+      location.reload();
+    }
+  } catch (e) {}
+}, 5000);
+</script>
+</body>
+</html>
